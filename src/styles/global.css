@@ -181,6 +181,631 @@ button {
 }
 
 /* ============================================================
+   HERO
+   ============================================================ */
+.hero {
+  background: var(--cream);
+  color: var(--ink);
+  backface-visibility: hidden;
+}
+
+.layer {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  pointer-events: none;
+}
+.layer__in {
+  position: absolute;
+  inset: 0;
+}
+.layer--grid {
+  transform: translateZ(var(--z-grid));
+}
+.layer--mid {
+  transform: translateZ(var(--z-mid));
+}
+/* Cursor gravity well. Stays at z:0 so canvas pixels map 1:1 to clientX/Y
+   (any translateZ would scale it under perspective and offset the well).
+   Fades over the first third of the dive, before the flood. */
+.layer--field {
+  opacity: calc(1 - var(--p, 0) * 3.2);
+}
+.field {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.layer--fg {
+  transform: translateZ(var(--z-fg));
+}
+
+.grid-lines {
+  position: absolute;
+  inset: -25%;
+  background-image:
+    linear-gradient(to right, rgb(10 10 11 / 0.075) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(10 10 11 / 0.075) 1px, transparent 1px);
+  background-size: 8.333vw 8.333vw;
+  mask-image: radial-gradient(115% 85% at 50% 46%, #000 32%, transparent 86%);
+}
+
+.mark {
+  position: absolute;
+  color: var(--grey);
+}
+.mark--cross {
+  width: 15px;
+  height: 15px;
+  background:
+    linear-gradient(var(--grey), var(--grey)) center / 1px 100% no-repeat,
+    linear-gradient(var(--grey), var(--grey)) center / 100% 1px no-repeat;
+  opacity: 0.6;
+}
+.mark--rule {
+  width: 1px;
+  height: 22vh;
+  background: rgb(10 10 11 / 0.14);
+}
+.mark--square {
+  width: 6px;
+  height: 6px;
+  background: var(--cobalt);
+}
+.mark--label {
+  font-family: var(--ff-mono);
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--grey);
+  white-space: nowrap;
+}
+
+.sliver {
+  position: absolute;
+  width: 2px;
+  height: 34%;
+  background: var(--ink);
+  opacity: 0.13;
+  transform-origin: 50% 0%;
+}
+
+.hero__content {
+  position: absolute;
+  inset: 0;
+  /* clear the fixed HUD corners: the eyebrow otherwise collides with the
+     top-left bracket, and the hero line with the depth meter */
+  padding: calc(var(--pad) + 26px) var(--pad) calc(var(--pad) + 26px);
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  transform-style: preserve-3d;
+}
+
+.hero__eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.9em;
+  color: var(--ink);
+  padding-top: 0.6em;
+}
+.hero__eyebrow::before {
+  content: '';
+  width: 26px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.5;
+}
+
+.hero__wm {
+  align-self: end;
+  position: relative;
+  transform-style: preserve-3d;
+  margin-bottom: clamp(8px, 2vh, 22px);
+}
+
+/* The h1 IS the wordmark. */
+/* The mask line must not clip the cobalt dot above the ı: padding grows the
+   clip box upward, the negative margin keeps the glyphs optically in place.
+   overflow-x stays visible so the portal ring can overhang the left edge
+   (CSS only permits that combination with overflow-y: clip). */
+.hero__name .line {
+  overflow-x: visible;
+  overflow-y: clip;
+  padding-top: 0.5em;
+  margin-top: -0.5em;
+}
+
+.hero__name {
+  font-family: var(--ff-display);
+  font-size: var(--wm);
+  line-height: 0.78;
+  font-weight: 800;
+  font-stretch: 112%;
+  font-variation-settings: 'wght' 800, 'wdth' 112;
+  letter-spacing: -0.045em;
+  text-transform: lowercase;
+  color: var(--ink);
+  white-space: nowrap;
+  /* The dive scales this 4.2× and pans it. GPU text rasterisation rebuilds the
+     glyph atlas every few frames at that size, which reads as the wordmark
+     re-loading mid-dive; the colour hint keeps its raster on the compositor
+     with colour emoji, which disables the async glyph path. */
+  will-change: transform;
+  color: var(--ink);
+  margin-left: -0.055em;
+}
+
+.hero__i {
+  position: relative;
+  display: inline-block;
+}
+
+/* cobalt dot = the portal. Sized in em of the wordmark; nudged right to sit
+   on the stem (the ı advance is asymmetric) and lifted to leave a tittle gap. */
+.portal {
+  position: absolute;
+  left: 50%;
+  top: -0.075em;
+  width: 0.235em;
+  height: 0.235em;
+  margin-left: -0.095em;
+  border-radius: 50%;
+  background: var(--cobalt);
+  transform-origin: 50% 50%;
+  animation: portal-pulse 4.2s ease-in-out infinite;
+}
+@keyframes portal-pulse {
+  0%,
+  100% {
+    opacity: 0.92;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+.portal::after {
+  content: '';
+  position: absolute;
+  inset: -0.07em;
+  border: 1px solid var(--cobalt);
+  border-radius: 50%;
+  opacity: 0.55;
+}
+.portal::before {
+  /* hold-progress ring, dash offset driven inline by the engine */
+  content: '';
+  position: absolute;
+  inset: -0.34em;
+  border-radius: 50%;
+  border: 1.5px solid var(--cobalt);
+  opacity: 0;
+  transition: opacity 0.18s linear;
+  -webkit-mask: conic-gradient(#000 var(--hold, 0turn), transparent 0);
+  mask: conic-gradient(#000 var(--hold, 0turn), transparent 0);
+}
+body.is-holding .portal::before {
+  opacity: 1;
+}
+
+body.is-holding .portal {
+  animation: portal-charge 0.18s steps(2) infinite;
+}
+@keyframes portal-charge {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.06);
+  }
+}
+/* charge = subtle zoom on the whole scene */
+body.is-holding .view {
+  transform: scale(1.012);
+  transition: transform 0.3s var(--ease-out);
+}
+
+.hero__foot {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--pad);
+  transform-style: preserve-3d;
+  padding-bottom: 0.5em;
+}
+
+.hero__line {
+  font-size: clamp(15px, 1.42vw, 21px);
+  line-height: 1.4;
+  max-width: 42ch;
+  letter-spacing: -0.012em;
+}
+.hero__line .serif-em {
+  font-size: 1.26em;
+  line-height: 1;
+}
+
+/* ENTER affordance */
+.enter {
+  position: relative;
+  flex: 0 0 auto;
+  width: clamp(82px, 8.2vw, 106px);
+  aspect-ratio: 1;
+  border: 0;
+  padding: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink);
+  display: grid;
+  place-items: center;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+  overflow: visible;
+}
+.enter__ring {
+  position: absolute;
+  inset: 0;
+  transform: rotate(-90deg);
+  overflow: visible;
+}
+.enter__ring circle {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1;
+  opacity: 0.3;
+}
+.enter__ring .enter__prog {
+  stroke: var(--cobalt);
+  stroke-width: 1.7;
+  opacity: 1;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  stroke-linecap: round;
+}
+.enter__label {
+  position: relative;
+  font-family: var(--ff-mono);
+  font-size: clamp(10px, 0.72rem, 12px);
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  display: grid;
+  gap: 0.3em;
+  justify-items: center;
+  line-height: 1;
+  transition: color 0.25s linear;
+}
+.enter__label small {
+  font-size: 0.78em;
+  opacity: 0.62;
+  letter-spacing: 0.14em;
+}
+.enter::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--cobalt);
+  opacity: 0;
+  transform: scale(0.84);
+  transition: opacity 0.32s var(--ease-out), transform 0.45s var(--ease-out);
+}
+.enter:hover::before,
+.enter:focus-visible::before,
+body.is-holding .enter::before {
+  opacity: 1;
+  transform: scale(1);
+}
+.enter:hover .enter__label,
+.enter:focus-visible .enter__label,
+body.is-holding .enter__label {
+  color: var(--cream);
+}
+.enter:hover .enter__ring circle,
+.enter:focus-visible .enter__ring circle,
+body.is-holding .enter__ring circle {
+  stroke: var(--cream);
+  opacity: 0.45;
+}
+.enter:hover .enter__ring .enter__prog,
+body.is-holding .enter__ring .enter__prog {
+  stroke: var(--cream);
+}
+
+/* Keyboard skip target: invisible until focused, so it never drifts into the
+   frame when the camera scales the world. */
+.hero__skip {
+  position: absolute;
+  left: var(--pad);
+  top: 0;
+  z-index: 6;
+  padding: 0.7em 1em;
+  background: var(--ink);
+  color: var(--cream);
+  font-family: var(--ff-mono);
+  font-size: var(--hud);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-140%);
+  transition: transform 0.18s var(--ease-out), opacity 0.18s linear;
+}
+.hero__skip:focus-visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: none;
+  outline-offset: -4px;
+}
+
+/* ============================================================
+   ABOUT — palette inversion. Revealed by the flood iris.
+   ============================================================ */
+.about-clip {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  clip-path: circle(0% at 50% 50%);
+  will-change: clip-path;
+}
+.about {
+  background: var(--ink);
+  color: var(--cream);
+}
+.about.on-ink :focus-visible {
+  outline-color: var(--cream);
+}
+
+.about__grid-bg {
+  position: absolute;
+  inset: -10%;
+  background-image:
+    linear-gradient(to right, rgb(241 237 226 / 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(241 237 226 / 0.05) 1px, transparent 1px);
+  background-size: 9vw 9vw;
+  mask-image: radial-gradient(100% 80% at 50% 38%, #000 20%, transparent 92%);
+}
+/* Topographic hover (src/scripts/contours.ts). Painted in viewport pixels,
+   under the grid and copy; never takes pointer events. */
+.about__contours {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.about__scroll {
+  position: absolute;
+  inset: 0;
+  /* top/bottom clear the fixed HUD corners */
+  padding: calc(var(--pad) + 30px) var(--pad) calc(var(--pad) + 52px);
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
+  grid-template-areas:
+    'eyebrow eyebrow'
+    'head    aside'
+    'body    aside'
+    'stats   stats'
+    'back    back';
+  column-gap: clamp(24px, 4vw, 72px);
+  row-gap: clamp(14px, 2.6vh, 30px);
+  align-content: start;
+  overflow: hidden;
+}
+/* Internal scroll only once About is the active stage (short viewports). */
+body[data-at='about'] .about__scroll {
+  overflow-y: auto;
+  overflow-x: hidden;
+  touch-action: pan-y;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--cobalt) transparent;
+}
+
+.about__eyebrow {
+  grid-area: eyebrow;
+  display: flex;
+  gap: 1.2em;
+  align-items: center;
+  color: var(--cream);
+  opacity: 0.6;
+  padding-top: 0.4em;
+}
+.about__eyebrow::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.3;
+}
+
+.about__head {
+  grid-area: head;
+  font-family: var(--ff-display);
+  font-size: clamp(1.9rem, 4.35vw, 4.4rem);
+  line-height: 0.97;
+  font-weight: 800;
+  font-stretch: 104%;
+  font-variation-settings: 'wght' 800, 'wdth' 104;
+  letter-spacing: -0.035em;
+  max-width: 21ch;
+  text-wrap: balance;
+}
+.about__head .serif-em {
+  color: var(--cobalt);
+  font-size: 1.06em;
+  /* The serif's x-height is smaller than Archivo's, so 1.03em read as a
+     shrink. Lift a hair and add size so the italic sits level. */
+  vertical-align: 0;
+}
+
+.about__col {
+  display: grid;
+  gap: clamp(12px, 1.6vh, 20px);
+  align-content: start;
+  min-width: 0;
+}
+.about__body {
+  grid-area: body;
+}
+.about__body p {
+  max-width: 66ch;
+  font-size: clamp(14.5px, 1.02vw, 16.5px);
+  line-height: 1.62;
+  color: rgb(241 237 226 / 0.82);
+}
+.about__body p + p {
+  margin-top: 0.85em;
+}
+.about__body p:first-child::first-letter {
+  float: left;
+  font-family: var(--ff-serif);
+  font-style: italic;
+  font-size: 3.1em;
+  line-height: 0.74;
+  padding: 0.1em 0.1em 0 0;
+  color: var(--cobalt);
+}
+
+.about__stats {
+  grid-area: stats;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0 clamp(16px, 2vw, 34px);
+  border-top: 1px solid rgb(241 237 226 / 0.16);
+}
+.stat {
+  min-width: 0;
+  /* padding lives on the cell, not the list, so dividers meet the top rule */
+  padding: clamp(10px, 1.4vh, 16px) clamp(12px, 1.4vw, 22px) 0.4em 0;
+  border-right: 1px solid rgb(241 237 226 / 0.1);
+}
+.stat:last-child {
+  border-right: 0;
+}
+.stat__k {
+  color: rgb(241 237 226 / 0.72);
+  display: block;
+  margin-bottom: 0.7em;
+}
+.stat__v {
+  font-size: clamp(13px, 1.02vw, 15.5px);
+  line-height: 1.28;
+  display: block;
+  max-width: 24ch;
+  text-wrap: balance;
+  /* the value column is the payload: give it the cream the labels borrow */
+  color: var(--cream);
+}
+.stat__v .dot {
+  display: inline-block;
+  width: 0.46em;
+  height: 0.46em;
+  border-radius: 50%;
+  background: var(--cobalt);
+  margin-right: 0.55em;
+  vertical-align: 0.05em;
+}
+
+.about__aside {
+  grid-area: aside;
+  display: grid;
+  gap: clamp(12px, 1.8vh, 22px);
+  align-content: start;
+  /* card + rule share this width so the right column reads as one block */
+  width: 100%;
+  max-width: min(100%, 340px);
+  justify-self: end;
+  min-width: 0;
+}
+
+.portrait {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  max-height: 46vh;
+  border: 1px solid rgb(241 237 226 / 0.2);
+  background: linear-gradient(152deg, var(--cream) 0%, var(--cream-2) 46%, #cbc5b1 100%);
+  overflow: hidden;
+  color: var(--ink);
+}
+.portrait::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(72% 56% at 50% 30%, rgb(10 10 11 / 0.88), transparent 62%),
+    linear-gradient(to top, rgb(10 10 11 / 0.92), transparent 52%);
+}
+.portrait__label {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.8em 1.4em 1.5em;
+  color: var(--cream);
+}
+.portrait__tick {
+  position: absolute;
+  inset: 7px;
+  border: 1px solid rgb(241 237 226 / 0.22);
+  pointer-events: none;
+}
+.portrait__cross {
+  position: absolute;
+  /* stop at the inner frame so the crosshair never cuts through it */
+  inset: 7px;
+  background:
+    linear-gradient(rgb(241 237 226 / 0.35), rgb(241 237 226 / 0.35)) center / 1px 100% no-repeat,
+    linear-gradient(rgb(241 237 226 / 0.35), rgb(241 237 226 / 0.35)) center / 100% 1px no-repeat;
+  pointer-events: none;
+}
+
+.about__locked {
+  border-top: 1px solid rgb(241 237 226 / 0.16);
+  padding-top: 0.75em;
+  display: flex;
+  justify-content: space-between;
+  gap: 1em;
+  color: rgb(241 237 226 / 0.8); /* 7:1 on ink at 9–11px */
+}
+.about__locked .cobalt {
+  color: var(--cobalt);
+}
+
+.about__back {
+  justify-self: start;
+  grid-area: back;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7em;
+  border: 0;
+  background: none;
+  padding: 0.4em 0;
+  font-family: var(--ff-mono);
+  font-size: var(--hud);
+  letter-spacing: var(--track);
+  text-transform: uppercase;
+  opacity: 0.8;
+  transition: opacity 0.22s linear, gap 0.22s var(--ease-out);
+  touch-action: manipulation;
+}
+.about__back:hover,
+.about__back:focus-visible {
+  opacity: 1;
+  gap: 1em;
+}
+.about__back .arrow {
+  display: inline-block;
+  transform: translateY(-1px);
+}
+
+/* ============================================================
    HUD (global, persistent)
    ============================================================ */
 .hud {

@@ -1,0 +1,77 @@
+---
+import { content } from '../data/content';
+// Split the hero line so "care how they feel" can take the serif accent.
+const [lead, tail] = content.heroLine.split('care how they feel');
+---
+
+<section class="stage hero" id="hero" data-stage="hero" aria-labelledby="hero-title">
+  <a class="hero__skip" href="#about" data-enter-link>Skip to about</a>
+
+  <!-- FAR: grid -->
+  <div class="layer layer--grid" data-layer="grid">
+    <div class="layer__in" data-parallax="0.6">
+      <div class="grid-lines" data-grid></div>
+    </div>
+  </div>
+
+  <!-- MID-FAR: cursor gravity well (canvas, painted in screen space) -->
+  <div class="layer layer--field" data-layer="field">
+    <canvas class="field" data-dots aria-hidden="true"></canvas>
+  </div>
+
+  <!-- MID: registration marks -->
+  <div class="layer layer--mid" data-layer="mid">
+    <div class="layer__in" data-parallax="1.2">
+      <span class="mark mark--cross" style="left:18%;top:24%" data-float></span>
+      <span class="mark mark--cross" style="left:76%;top:16%" data-float></span>
+      <span class="mark mark--cross" style="left:88%;top:62%" data-float></span>
+      <span class="mark mark--rule" style="left:62%;top:8%"></span>
+      <span class="mark mark--square" style="left:31%;top:12%" data-float></span>
+      <span class="mark mark--label" style="left:76%;top:19%">x.0420 / y.1180</span>
+      <span class="mark mark--label" style="left:9%;top:58%">reg. 01</span>
+    </div>
+  </div>
+
+  <!-- NEAR: content (name, line, enter) -->
+  <div class="hero__content" data-layer="near">
+    <p class="hero__eyebrow mono">
+      <span class="line"><span data-reveal>{content.heroEyebrow}</span></span>
+    </p>
+
+    <div class="hero__wm" data-wordmark>
+      <h1 class="hero__name" id="hero-title" aria-label={`${content.brand} — ${content.name}`}>
+        <span class="line" aria-hidden="true">
+          <span data-reveal-wm>
+            <span class="hero__i">ı<span class="portal" data-portal></span></span>wan
+          </span>
+        </span>
+      </h1>
+    </div>
+
+    <div class="hero__foot" data-foot>
+      <p class="hero__line">
+        <span class="line"><span data-reveal>{lead}<span class="serif-em">care how they feel</span>{tail}</span></span>
+      </p>
+
+      <button class="enter" type="button" data-enter data-cursor-hover="ENTER" aria-label="Enter — dive to the About stage (click, or press and hold)">
+        <svg class="enter__ring" viewBox="0 0 100 100" aria-hidden="true">
+          <circle cx="50" cy="50" r="48.5"></circle>
+          <circle class="enter__prog" cx="50" cy="50" r="48.5" pathLength="1" data-hold-ring></circle>
+        </svg>
+        <span class="enter__label" aria-hidden="true">
+          {content.enterLabel}
+          <small>Hold</small>
+        </span>
+      </button>
+    </div>
+  </div>
+
+  <!-- NEAREST: foreground slivers that whip past the camera on dive -->
+  <div class="layer layer--fg" data-layer="fg">
+    <div class="layer__in" data-parallax="2.2">
+      <span class="sliver" style="left:7%;top:-10%;height:46%" data-sliver></span>
+      <span class="sliver" style="left:93%;top:58%;height:52%" data-sliver></span>
+      <span class="sliver" style="left:48%;top:86%;height:30%;width:1px" data-sliver></span>
+    </div>
+  </div>
+</section>
