@@ -1,0 +1,15 @@
+---
+// Custom cursor: injected by JS only on fine pointers. Kept in markup so CSS owns the look.
+---
+
+<div class="cursor" data-cursor aria-hidden="true">
+  <svg class="cursor__ring" viewBox="0 0 46 46" data-cursor-ring>
+    <circle cx="23" cy="23" r="21"></circle>
+    <circle class="cursor__prog" cx="23" cy="23" r="21" pathLength="1" data-cursor-prog></circle>
+  </svg>
+  <svg class="cursor__tri" viewBox="0 0 20 20" data-cursor-tri>
+    <!-- isosceles arrowhead, tip at +X so rotation maps to heading -->
+    <polygon points="19,10 2,2 5.5,10 2,18"></polygon>
+  </svg>
+  <span class="cursor__label" data-cursor-label></span>
+</div>

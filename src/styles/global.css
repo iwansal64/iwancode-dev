@@ -1,0 +1,653 @@
+/* ============================================================
+   iwan — tokens, reset, type, stage styling
+   ------------------------------------------------------------
+   Type:
+   - Display: Archivo Variable (wght 800 / wdth 106–112). Chosen over
+     Anton because the width axis lets the wordmark sit expanded and
+     architectural at 39vw while staying legible in micro sizes; Anton
+     has one weight and gets muddy when large.
+   - Accent: Instrument Serif Italic. One high-contrast italic note
+     against the heavy grotesk — used only on the phrase that carries
+     feeling, in the hero line and the About headline.
+   - Micro/HUD: JetBrains Mono, uppercase, wide tracked, tabular nums.
+   ============================================================ */
+:root {
+  --cream: #f1ede2;
+  --cream-2: #e4dfd0;
+  --ink: #0a0a0b;
+  --cobalt: #1438ff;
+  --grey: #6b6b6b;
+
+  --ff-display: 'Archivo Variable', 'Archivo', system-ui, sans-serif;
+  --ff-serif: 'Instrument Serif', Georgia, serif;
+  --ff-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+
+  --pad: clamp(16px, 3vw, 52px);
+  --hud: clamp(9px, 0.6rem, 11px);
+  --track: 0.14em;
+
+  /* tunable: wordmark size. "ıwan" in Archivo @ wdth112 is ~3.64em wide,
+     so this fills the grid minus padding at any viewport. */
+  --wm: min(calc((100vw - 2 * var(--pad)) / 3.75), 52vh);
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --z-grid: -700px;
+  --z-mid: -340px;
+  --z-fg: 420px;
+  --persp: 1100px;
+
+  color-scheme: light dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+/* No native page scroll anywhere: the camera moves, not the document. */
+body {
+  overflow: hidden;
+  height: 100dvh;
+  background: var(--ink);
+  color: var(--ink);
+  font-family: var(--ff-display);
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+}
+
+body.is-custom-cursor,
+body.is-custom-cursor * {
+  cursor: none !important;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+/* The cursor's parent is 0×0, so the max-width above collapses its SVGs to
+   zero width. They are sized explicitly in .cursor__tri / .cursor__ring. */
+.cursor__tri,
+.cursor__ring {
+  max-width: none;
+}
+
+h1,
+h2,
+h3,
+p,
+figure,
+dl,
+dd {
+  margin: 0;
+  font-weight: 400;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+.mono {
+  font-family: var(--ff-mono);
+  font-size: var(--hud);
+  font-weight: 450;
+  letter-spacing: var(--track);
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+}
+
+.serif-em {
+  font-family: var(--ff-serif);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.012em;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+:focus-visible {
+  outline: 2px solid var(--cobalt);
+  outline-offset: 3px;
+}
+
+/* ---- masked line reveal primitive ------------------------------ */
+.line {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.08em;
+}
+.line > span {
+  display: block;
+}
+
+/* ============================================================
+   Viewport + 3D world
+   ============================================================ */
+.view {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: var(--ink);
+}
+
+.world,
+.about-world {
+  position: absolute;
+  inset: 0;
+  perspective: var(--persp);
+  perspective-origin: 50% 46%;
+  transform-style: preserve-3d;
+}
+
+.world {
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+
+.stage {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+}
+
+/* ============================================================
+   HUD (global, persistent)
+   ============================================================ */
+.hud {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  pointer-events: none;
+  color: var(--ink);
+  transition: color 0.45s linear;
+}
+body[data-tone='ink'] .hud {
+  color: var(--cream);
+}
+.hud__corner {
+  position: absolute;
+  padding: calc(var(--pad) * 0.55) var(--pad);
+  display: flex;
+  align-items: center;
+  gap: 0.8em;
+  white-space: nowrap;
+}
+.hud__corner--tl {
+  top: 0;
+  left: 0;
+}
+.hud__corner--tr {
+  top: 0;
+  right: 0;
+  flex-direction: row-reverse;
+}
+.hud__corner--bl {
+  bottom: 0;
+  left: 0;
+}
+.hud__corner--br {
+  bottom: 0;
+  right: 0;
+  flex-direction: row-reverse;
+}
+.hud__bracket {
+  width: 9px;
+  height: 9px;
+  border-top: 1px solid currentColor;
+  border-left: 1px solid currentColor;
+  opacity: 0.45;
+  flex: 0 0 auto;
+}
+.hud__corner--tr .hud__bracket {
+  border: 0;
+  border-top: 1px solid currentColor;
+  border-right: 1px solid currentColor;
+}
+.hud__corner--bl .hud__bracket {
+  border: 0;
+  border-bottom: 1px solid currentColor;
+  border-left: 1px solid currentColor;
+}
+.hud__corner--br .hud__bracket {
+  border: 0;
+  border-bottom: 1px solid currentColor;
+  border-right: 1px solid currentColor;
+}
+.hud__stage {
+  opacity: 0.82;
+}
+.hud__stage b {
+  font-weight: 500;
+  opacity: 1;
+}
+.hud__depth {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55em;
+}
+.hud__depth .bar {
+  display: inline-block;
+  width: clamp(26px, 4.6vw, 58px);
+  height: 2px;
+  background: currentColor;
+  opacity: 1;
+  position: relative;
+}
+.hud__depth .bar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: currentColor;
+  opacity: 0.18;
+}
+.hud__depth .bar i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0%;
+  background: var(--cobalt);
+  z-index: 1;
+}
+.hud__lock {
+  color: var(--cobalt);
+  opacity: 1 !important;
+}
+/* One zone owns no HTML: the crosshair at the exact centre. On the hero it
+   sits on the wordmark's optical axis, which reads as the mark the portal
+   hangs from; over About it becomes the survey origin. Hidden on phones,
+   where the centre already belongs to the wordmark. */
+.hud__cross {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 15px;
+  height: 15px;
+  margin: -7.5px 0 0 -7.5px;
+  background:
+    linear-gradient(currentColor, currentColor) center / 1px 100% no-repeat,
+    linear-gradient(currentColor, currentColor) center / 100% 1px no-repeat;
+  opacity: 0.22;
+}
+@media (max-width: 620px) {
+  .hud__cross {
+    display: none;
+  }
+}
+
+/* ============================================================
+   Flood, veil, grain
+   ============================================================ */
+.flood {
+  position: fixed;
+  left: var(--fx, 50%);
+  top: var(--fy, 50%);
+  width: calc(var(--fmax, 60vmax) * 2);
+  height: calc(var(--fmax, 60vmax) * 2);
+  margin-left: calc(var(--fmax, 60vmax) * -1);
+  margin-top: calc(var(--fmax, 60vmax) * -1);
+  border-radius: 50%;
+  background: var(--cobalt);
+  z-index: 30;
+  pointer-events: none;
+  transform: scale(0);
+  opacity: 0;
+  will-change: transform, opacity;
+}
+.flood__label {
+  position: fixed;
+  inset: 0;
+  z-index: 31;
+  display: grid;
+  place-items: center;
+  color: var(--cream);
+  pointer-events: none;
+  opacity: 0;
+  letter-spacing: 0.32em;
+  text-align: center;
+  padding: 0 var(--pad);
+}
+
+/* ============================================================
+   Cursor (fine pointers only)
+   ============================================================ */
+.cursor {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 120;
+  pointer-events: none;
+  width: 0;
+  height: 0;
+  opacity: 0;
+}
+.cursor__tri {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  overflow: visible;
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+.cursor__tri polygon {
+  fill: var(--cobalt);
+  stroke: var(--cream);
+  stroke-width: 1.1;
+  stroke-linejoin: round;
+  transition: fill 0.16s linear, stroke 0.16s linear;
+}
+body.is-flood .cursor__tri polygon {
+  fill: var(--cream);
+  stroke: var(--cream);
+}
+/* over the cobalt ENTER button a cobalt arrow disappears: invert it */
+.cursor[data-mode='portal'] .cursor__tri polygon,
+.cursor[data-mode='hold'] .cursor__tri polygon {
+  fill: var(--cream);
+  stroke: var(--cobalt);
+}
+.cursor[data-mode='portal'] .cursor__ring circle,
+.cursor[data-mode='hold'] .cursor__ring circle {
+  stroke: var(--cream);
+}
+.cursor__ring {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 48px;
+  height: 48px;
+  margin: -24px 0 0 -24px;
+  transform: rotate(-90deg);
+  opacity: 0;
+}
+.cursor__ring circle {
+  fill: none;
+  stroke: var(--cobalt);
+  stroke-width: 1;
+  opacity: 0.5;
+}
+.cursor__ring .cursor__prog {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  stroke-linecap: round;
+  opacity: 1;
+  stroke-width: 1.4;
+}
+body[data-tone='ink'] .cursor__ring circle {
+  stroke: var(--cream);
+}
+.cursor__label {
+  position: absolute;
+  left: 16px;
+  top: 12px;
+  white-space: nowrap;
+  color: var(--cream);
+  background: var(--cobalt);
+  padding: 0.28em 0.5em;
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  opacity: 0;
+}
+body[data-tone='ink'] .cursor__label {
+  background: var(--cream);
+  color: var(--ink);
+}
+
+/* ============================================================
+   Preloader
+   ============================================================ */
+.preload {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: var(--ink);
+  color: var(--cream);
+  display: grid;
+  padding: var(--pad);
+  grid-template-rows: auto 1fr auto;
+  clip-path: inset(0 0 0 0);
+  will-change: clip-path;
+}
+.preload__top {
+  display: flex;
+  justify-content: space-between;
+  color: rgb(241 237 226 / 0.5);
+}
+.preload__count {
+  align-self: end;
+  justify-self: start;
+  font-family: var(--ff-display);
+  font-size: min(36vw, 44vh);
+  line-height: 0.74;
+  font-weight: 800;
+  font-stretch: 108%;
+  font-variation-settings: 'wght' 800, 'wdth' 108;
+  letter-spacing: -0.05em;
+  font-variant-numeric: tabular-nums;
+}
+.preload__bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 2em;
+  padding-top: 1.2em;
+}
+.preload__status {
+  color: var(--cream);
+  opacity: 0.75;
+  min-height: 1.4em;
+}
+.preload__bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 4px;
+  background: rgb(241 237 226 / 0.1);
+}
+.preload__bar i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0%;
+  background: var(--cobalt);
+}
+.preload__wipe {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  background: var(--cobalt);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+}
+
+/* ============================================================
+   Grain + vignette
+   ============================================================ */
+.grain {
+  position: fixed;
+  inset: -40%;
+  z-index: 65;
+  pointer-events: none;
+  opacity: 0.055;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: grain-shift 0.8s steps(3) infinite;
+}
+body.is-paused .grain,
+body.is-halted .grain {
+  animation-play-state: paused;
+}
+@keyframes grain-shift {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  33% {
+    transform: translate3d(-2%, 1.4%, 0);
+  }
+  66% {
+    transform: translate3d(1.6%, -1.2%, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.vignette {
+  position: fixed;
+  inset: 0;
+  z-index: 64;
+  pointer-events: none;
+  background: radial-gradient(125% 100% at 50% 50%, transparent 58%, rgb(10 10 11 / 0.13));
+}
+
+/* ============================================================
+   Responsive — recompose, don't shrink
+   ============================================================ */
+@media (max-width: 900px) {
+  .about__scroll {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'eyebrow'
+      'back'
+      'head'
+      'body'
+      'aside'
+      'stats';
+    padding-bottom: calc(var(--pad) + 56px + env(safe-area-inset-bottom));
+    row-gap: 16px;
+  }
+  .about__aside {
+    grid-template-columns: minmax(0, 1fr);
+    max-width: 100%;
+    justify-self: stretch;
+  }
+  .portrait {
+    aspect-ratio: 5 / 3;
+    height: auto;
+    width: 100%;
+  }
+  .about__head {
+    max-width: 100%;
+    font-size: clamp(2rem, 7.2vw, 3.4rem);
+  }
+  .about__stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px 20px;
+  }
+  .stat {
+    border-right: 0;
+    padding-right: 0;
+  }
+  .about__back {
+    /* top of the mobile column: reachable without scrolling through the copy */
+    padding: 0.2em 0 0.6em;
+  }
+  .about__scroll {
+    padding-bottom: calc(var(--pad) + 44px + env(safe-area-inset-bottom));
+  }
+}
+
+@media (max-width: 620px) {
+  :root {
+    --pad: 18px;
+    --hud: 9px;
+    --track: 0.12em;
+  }
+  .hud__corner {
+    padding: calc(var(--pad) * 0.5) var(--pad);
+  }
+  .hud__corner--br {
+    display: none;
+  }
+  .hero__skip {
+    top: 0;
+  }
+  /* Tall phone: centre the wordmark in the void instead of pinning it low. */
+  .hero__wm {
+    align-self: center;
+  }
+  .hero__line {
+    max-width: 26ch;
+    font-size: 14px;
+  }
+  .hero__foot {
+    gap: 12px;
+  }
+  .enter {
+    width: 76px;
+  }
+  .stat {
+    border-right: 0;
+    padding-right: 0;
+  }
+  .about__body p {
+    font-size: 14.5px;
+  }
+  .about__head {
+    font-size: clamp(1.85rem, 8.4vw, 2.8rem);
+  }
+}
+
+@media (hover: none) {
+  .cursor {
+    display: none;
+  }
+}
+
+/* ============================================================
+   Reduced motion
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .grain,
+  .portal {
+    animation: none !important;
+  }
+  .line > span,
+  .hero__name,
+  .hero__wm,
+  .layer,
+  .layer__in {
+    transform: none !important;
+  }
+  .enter::before,
+  .portal::before,
+  body.is-holding .view {
+    transition: none !important;
+  }
+  .about__scroll {
+    overflow-y: auto;
+    touch-action: pan-y;
+  }
+}

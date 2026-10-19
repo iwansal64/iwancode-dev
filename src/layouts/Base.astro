@@ -1,0 +1,54 @@
+---
+// Fonts: self-hosted via @fontsource. Only the subsets/axes actually used.
+import '@fontsource-variable/archivo/wdth.css';
+import '@fontsource/instrument-serif/400-italic.css';
+import '@fontsource-variable/jetbrains-mono/wght.css';
+import '../styles/global.css';
+import Hud from '../components/Hud.astro';
+import Cursor from '../components/Cursor.astro';
+
+import { content } from '../data/content';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+const {
+  title = `iwan — ${content.name}, ${content.role.toLowerCase()}`,
+  description = content.heroLine,
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#0A0A0B" />
+    <title>{title}</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <script is:inline>
+      // Flag that JS is running before first paint, so CSS can hold the
+      // pre-JS state and avoid a flash of the hero underneath the preloader.
+      document.documentElement.classList.add('js');
+    </script>
+  </head>
+  <body data-at="hero" data-tone="cream">
+    <slot />
+    <Hud />
+    <Cursor />
+    <div class="grain" data-grain aria-hidden="true"></div>
+    <p class="sr-only" aria-live="polite" data-live></p>
+    <noscript>
+      <style>
+        .preload { display: none !important; }
+        body { overflow: auto !important; height: auto !important; }
+        .view, .stage, .about__scroll { position: relative !important; inset: auto !important; }
+        .stage { min-height: 100dvh; }
+        .about { opacity: 1 !important; visibility: visible !important; transform: none !important; }
+        .flood, .flood__label, .hud { display: none !important; }
+      </style>
+    </noscript>
+  </body>
+</html>

@@ -1,0 +1,31 @@
+---
+import { content } from '../data/content';
+const { hud, stages } = content;
+---
+
+<header class="hud" data-hud aria-hidden="true">
+  <p class="hud__corner hud__corner--tl mono" data-hud-corner>
+    <span class="hud__bracket"></span>
+    <span>{hud.player}</span>
+  </p>
+
+  <p class="hud__corner hud__corner--tr mono" data-hud-corner>
+    <span class="hud__stage" data-hud-stage><b data-hud-stage-number>Stage 01 / 0{stages.length}</b><span data-hud-stage-label> — Hero</span></span>
+    <span class="hud__bracket"></span>
+  </p>
+
+  <p class="hud__corner hud__corner--bl mono" data-hud-corner>
+    <span class="hud__bracket"></span>
+    <span class="hud__depth">
+      {hud.depthLabel} <span data-hud-depth>000</span>M
+      <span class="bar"><i data-hud-bar></i></span>
+    </span>
+  </p>
+
+  <p class="hud__corner hud__corner--br mono" data-hud-corner>
+    <span class="hud__hint">{hud.hint}</span>
+    <span class="hud__bracket"></span>
+  </p>
+
+  <span class="hud__cross" data-hud-cross></span>
+</header>

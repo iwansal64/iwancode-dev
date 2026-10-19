@@ -1,11 +1,33 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+import Base from '../layouts/Base.astro';
+import Preloader from '../components/Preloader.astro';
+import Hero from '../components/Hero.astro';
+import About from '../components/About.astro';
 ---
 
-<Layout>
-	<Welcome />
-</Layout>
+<Base>
+  <main class="view" data-view>
+    <div class="world" data-world>
+      <Hero />
+    </div>
+
+    <!-- cobalt flood: grows out of the portal dot -->
+    <div class="flood" data-flood aria-hidden="true"></div>
+    <p class="flood__label mono" data-flood-label aria-hidden="true">Stage 02 — About</p>
+
+    <!-- About lives in its own perspective world, revealed by an iris -->
+    <div class="about-clip" data-about-clip>
+      <div class="about-world" data-about-world>
+        <About />
+        <!-- Stage 03+ mounts here as another .stage sibling. -->
+      </div>
+    </div>
+  </main>
+
+  <Preloader />
+</Base>
+
+<script>
+  import { boot } from '../scripts/engine';
+  boot();
+</script>

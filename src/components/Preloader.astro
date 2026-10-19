@@ -1,0 +1,20 @@
+---
+import { content } from '../data/content';
+---
+
+<div class="preload" data-preload aria-hidden="true">
+  <div class="preload__top mono">
+    <span>iwan / build 01</span>
+    <span data-preload-state>INIT</span>
+  </div>
+
+  <div class="preload__count" data-preload-count>000</div>
+
+  <div class="preload__bottom">
+    <p class="preload__status mono" data-preload-status>{content.preloader.messages[0]}</p>
+    <span class="mono" style="opacity:.45">PORTFOLIO — 2026</span>
+  </div>
+
+  <div class="preload__bar"><i data-preload-bar></i></div>
+  <div class="preload__wipe" data-preload-wipe></div>
+</div>
