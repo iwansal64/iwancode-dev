@@ -41,12 +41,11 @@ const whenIdle = () =>
   new Promise<void>((r) => ('requestIdleCallback' in window ? requestIdleCallback(() => r(), { timeout: 1500 }) : setTimeout(r, 300)));
 
 export async function boot() {
-  const root = document.documentElement;
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const fine = matchMedia('(hover: hover) and (pointer: fine)').matches;
 
   const dive = createDive({ reduced });
-  const cursor = initCursor(reduced);
+  const cursor = initCursor({ reduced });
   if (!reduced && fine) {
     whenIdle().then(() => {
       import('./dots').then((m) => m.initDots());
