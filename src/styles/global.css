@@ -11,6 +11,8 @@
      feeling, in the hero line and the About headline.
    - Micro/HUD: JetBrains Mono, uppercase, wide tracked, tabular nums.
    ============================================================ */
+@import "tailwindcss";
+
 :root {
   --cream: #f1ede2;
   --cream-2: #e4dfd0;
