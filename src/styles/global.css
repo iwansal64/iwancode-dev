@@ -650,16 +650,16 @@ body[data-at='about'] .about__scroll {
 .about__body {
   grid-area: body;
 }
-.about__body p {
+.about__body {
   max-width: 66ch;
   font-size: clamp(14.5px, 1.02vw, 16.5px);
   line-height: 1.62;
   color: rgb(241 237 226 / 0.82);
 }
-.about__body p + p {
+.about__body + p {
   margin-top: 0.85em;
 }
-.about__body p:first-child::first-letter {
+.about__body:first-child::first-letter {
   float: left;
   font-family: var(--ff-serif);
   font-style: italic;
@@ -1237,7 +1237,7 @@ body.is-halted .grain {
     border-right: 0;
     padding-right: 0;
   }
-  .about__body p {
+  .about__body {
     font-size: 14.5px;
   }
   .about__head {

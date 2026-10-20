@@ -24,7 +24,7 @@ export const content = {
     },
     // PLACEHOLDER paragraphs
     body: [
-      'I started programming because I love games and technology. Every challenge, every steep road ahead, every stuck moment, every bug — those are what make programming worth learning. What kept me here is the feeling of making something real out of nothing but an idea and a stubborn amount of focus.',
+      '.',
       "I'm happiest in the details: the easing on a transition, the 100ms that makes an interface feel alive, the edge case nobody asked about. Good software is mostly invisible decisions made carefully.",
       "Right now I'm exploring AI & Blockchain, and I'm building toward an AI-powered secure e-memory platform that can capture your memory by talking. This site is part of that: a place where I can treat the interface itself as the craft.",
     ],
